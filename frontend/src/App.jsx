@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // IMPORTANT: Replace this string with your actual Render URL once you get it!
 // Notice it already includes the /api/calculations part.
-const API_URL = "https://your-future-backend-url.onrender.com/api/calculations";
+const API_URL = "https://calculator-backend-jrzm.onrender.com";
 
 function App() {
   const [equation, setEquation] = useState('');
