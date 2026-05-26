@@ -56,9 +56,8 @@ public class CalculationController {
 
     // 3. DELETE Request: Wipes the entire history from the database
     @DeleteMapping
-    public void clearHistory() {
-        // JpaRepository gives us this method automatically!
-        // We don't even have to write the SQL for it.
+    public ResponseEntity<Void> clearHistory() {
         calculationRepository.deleteAll();
+        return ResponseEntity.noContent().build(); // Sends HTTP 204
     }
 }
