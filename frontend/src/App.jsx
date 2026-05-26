@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-// IMPORTANT: Replace this string with your actual Render URL once you get it!
-// Notice it already includes the /api/calculations part.
-const API_URL = "https://calculator-backend-jrzm.onrender.com";
+const API_URL = "https://calculator-backend-jrzm.onrender.com/api/calculations";
 
 function App() {
   const [equation, setEquation] = useState('');
