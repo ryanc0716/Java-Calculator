@@ -8,44 +8,46 @@ function App() {
   const [result, setResult] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
-    fetchHistory();
+    fetchHistory(0);
   }, []);
 
-  const fetchHistory = async () => {
+  const fetchHistory = async (pageNumber = 0) => {
     try {
-      // FIX: No quotes around API_URL!
-      const response = await axios.get(API_URL);
-      setHistory(response.data);
+      const response = await axios.get(`${API_URL}?page=${pageNumber}&size=5`);
+      setHistory(response.data.content);
+      setCurrentPage(pageNumber);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
-      console.error("Could not fetch history:", error);
+      console.error("Failed to fetch history:", error);
     }
   };
 
   const handleCalculate = async () => {
-    if (!equation.trim()) return; 
-  
-    setLoading(true); // Turn loading ON
-  
+    if (!equation.trim()) return;
+
+    setLoading(true);
+
     try {
       const response = await axios.post(API_URL, {
         equation: equation.trim()
       });
-  
+
       setResult(response.data.result);
-      fetchHistory(); 
+      fetchHistory(0);
     } catch (error) {
       console.error("Calculation failed:", error);
-      
-      // If Java sends back a 400 Bad Request because of our validation rules:
+
       if (error.response && error.response.status === 400) {
         setResult("Invalid Math!");
       } else {
         setResult("Server Error");
       }
     } finally {
-      setLoading(false); // Turn loading OFF no matter what happens
+      setLoading(false);
     }
   };
 
@@ -67,20 +69,14 @@ function App() {
     setResult(null);
   };
 
-  const handleCalculate = async () => {
-    if (!equation.trim()) return; 
-
+  const clearHistory = async () => {
     try {
-      // FIX: Using the dynamic API_URL
-      const response = await axios.post(API_URL, {
-        equation: equation.trim()
-      });
-      
-      setResult(response.data.result);
-      fetchHistory(); 
+      await axios.delete(API_URL);
+      setHistory([]);
+      setCurrentPage(0);
+      setTotalPages(0);
     } catch (error) {
-      console.error("Calculation failed:", error);
-      setResult("Error");
+      console.error("Failed to clear history:", error);
     }
   };
 
@@ -92,7 +88,7 @@ function App() {
       if (['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '+', '-', '*', '/'].includes(key)) {
         handleButtonClick(key);
       } else if (key === 'Enter' || key === '=') {
-        e.preventDefault(); 
+        e.preventDefault();
         handleCalculate();
       } else if (key === 'Escape' || key === 'Backspace') {
         handleClear();
@@ -104,16 +100,16 @@ function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [equation, result]); 
+  }, [equation, result]);
 
   return (
     <div className="container mt-5">
       <div className="row justify-content-center">
         <div className="col-md-5">
-          
+
           <div className="card shadow mb-4 bg-dark text-white border-0 rounded-4">
             <div className="card-body p-4">
-              
+
               <div className="bg-light text-dark text-end p-3 rounded-3 mb-4 shadow-inner" style={{ minHeight: '80px' }}>
                 <div className="text-muted small">{equation || "\u00A0"}</div>
                 <h2 className="mb-0 fw-bold">{result !== null ? `= ${result}` : "0"}</h2>
@@ -152,33 +148,58 @@ function App() {
               <div className="row g-2 mt-2">
                 <div className="col-6"><button onClick={() => handleButtonClick('0')} className="btn btn-secondary w-100 fs-4">0</button></div>
                 <div className="col-3"><button onClick={() => handleButtonClick('.')} className="btn btn-secondary w-100 fs-4 fw-bold">.</button></div>
-                <div className="col-3"><button onClick={handleCalculate} disabled={loading} className="btn btn-success w-100 fs-4 fw-bold">{loading ? "..." : "="}
-</button></div>
+                <div className="col-3"><button onClick={handleCalculate} disabled={loading} className="btn btn-success w-100 fs-4 fw-bold">{loading ? "..." : "="}</button></div>
               </div>
 
             </div>
           </div>
 
-          <div className="card shadow-sm border-0 rounded-4">
-            <div className="card-header bg-white border-0 pt-4 pb-2 d-flex justify-content-between align-items-center">
-              <h5 className="mb-0 fw-bold">Calculation History</h5>
-              <button onClick={handleClearHistory} className="btn btn-sm btn-outline-danger">Clear All</button>
+          <div className="mt-4 p-3 bg-light rounded">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+              <h4>Calculation History</h4>
+              <button className="btn btn-outline-danger btn-sm" onClick={clearHistory}>
+                Clear All
+              </button>
             </div>
-            
-            <ul className="list-group list-group-flush rounded-bottom-4">
-              {history.length === 0 ? (
-                <li className="list-group-item text-muted text-center py-3">No history yet.</li>
-              ) : (
-                [...history].reverse().map((calc) => (
-                  <li key={calc.id} className="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
-                    <span className="text-muted">{calc.equation}</span>
-                    <span className="badge bg-primary rounded-pill fs-6">{calc.result}</span>
-                  </li>
-                ))
-              )}
-            </ul>
-          </div>
 
+            {history.length === 0 ? (
+              <p className="text-muted">No history yet.</p>
+            ) : (
+              <ul className="list-group">
+                {history.map((calc, index) => (
+                  <li key={index} className="list-group-item d-flex justify-content-between">
+                    <span>{calc.equation}</span>
+                    <strong>= {calc.result}</strong>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {totalPages > 1 && (
+              <div className="d-flex justify-content-between align-items-center mt-3">
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  disabled={currentPage === 0}
+                  onClick={() => fetchHistory(currentPage - 1)}
+                >
+                  ← Previous
+                </button>
+
+                <span className="text-muted small">
+                  Page {currentPage + 1} of {totalPages}
+                </span>
+
+                <button
+                  className="btn btn-outline-secondary btn-sm"
+                  disabled={currentPage >= totalPages - 1}
+                  onClick={() => fetchHistory(currentPage + 1)}
+                >
+                  Next →
+                </button>
+              </div>
+            )}
+
+          </div>
         </div>
       </div>
     </div>
