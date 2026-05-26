@@ -1,40 +1,33 @@
-# Full-Stack Web Calculator 🧮
+# 🧮 CloudCalc: Full-Stack Web Calculator
 
-Hello, world! 👋 I am currently a Year 2 Computer Science student, and this repository contains my foundational Full-Stack Web application.
+A professional, full-stack calculator web application with persistent calculation history, built to demonstrate modern client-server architecture and cloud deployment.
 
-I built this project to move beyond basic Java logic and explore how client-server architectures operate. It demonstrates how a modern frontend interface communicates with a backend REST API and persists data to a database.
+### 🌐 Live Demo
+**[Click here to view the live application on Vercel!](https://java-calculator-opal.vercel.app/)**
 
-## 🚀 Tech Stack
-This application is built using a modern, industry-standard technology stack:
+## 🏗️ Tech Stack
+* **Frontend:** React, Vite, Bootstrap (Hosted on Vercel)
+* **Backend:** Java 17, Spring Boot, Spring Web, Spring Data JPA (Hosted on Render via Docker)
+* **Database:** PostgreSQL (Hosted on Neon.tech)
 
-* **Frontend:** React.js, HTML5, CSS3 (Bootstrap)
-* **Backend:** Java, Spring Boot (REST API)
-* **Database:** PostgreSQL
+## ✨ Features
+* **Modern UI:** Dark-mode interface built with Bootstrap's responsive grid system.
+* **Full CRUD Operations:** Connects to a live PostgreSQL database to Read, Create, and Delete calculation history.
+* **Smart Input:** Supports both on-screen buttons and physical keyboard inputs (including Enter/Backspace integration).
+* **Asynchronous Networking:** Uses Axios to seamlessly pass JSON data across cloud endpoints.
+* **Professional Architecture:** Utilizes Spring Boot Controller-Service-Repository layers and explicit `ResponseEntity` HTTP status codes.
 
-## 🧠 Core Features
-* Standard arithmetic operations (Addition, Subtraction, Multiplication, Division).
-* A responsive, modern User Interface built with React and Bootstrap.
-* Calculation history automatically saved and retrieved from the PostgreSQL database.
-* Full separation of concerns between the client and the server.
+## 🚀 How to Run Locally
 
-## 💻 Architecture Overview
-1. The user interacts with the **React** interface to input a math equation.
-2. The frontend sends the data via an HTTP POST request to the **Spring Boot** backend.
-3. The Java backend performs the calculation and saves the result to the **PostgreSQL** database.
-4. The server responds to the frontend with the final answer, which dynamically updates on the screen.
+1. **Clone the repository:**
+   `git clone https://github.com/your-username/Java-Calculator.git`
 
-## 🛠️ How to Run Locally
+2. **Start the Java Backend:**
+   * Navigate to the `/backend` directory.
+   * Ensure you have a local PostgreSQL database running, or update `application.properties`.
+   * Run: `./mvnw spring-boot:run`
 
-### Prerequisites
-* Java Development Kit (JDK 17+)
-* Node.js & npm
-* PostgreSQL installed and running on your machine
-
-### 1. Backend Setup
-1. Clone the repository.
-2. Navigate to the `/backend` directory.
-3. Update the `src/main/resources/application.properties` file with your local PostgreSQL credentials:
-   ```properties
-   spring.datasource.url=jdbc:postgresql://localhost:5432/calculator_db
-   spring.datasource.username=your_username
-   spring.datasource.password=your_password
+3. **Start the React Frontend:**
+   * Navigate to the `/frontend` directory.
+   * Run: `npm install`
+   * Run: `npm run dev`

@@ -7,6 +7,7 @@ function App() {
   const [equation, setEquation] = useState('');
   const [result, setResult] = useState(null);
   const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchHistory();
@@ -22,13 +23,29 @@ function App() {
     }
   };
 
-  const handleClearHistory = async () => {
+  const handleCalculate = async () => {
+    if (!equation.trim()) return; 
+  
+    setLoading(true); // Turn loading ON
+  
     try {
-      // FIX: Using the dynamic API_URL
-      await axios.delete(API_URL);
-      setHistory([]); 
+      const response = await axios.post(API_URL, {
+        equation: equation.trim()
+      });
+  
+      setResult(response.data.result);
+      fetchHistory(); 
     } catch (error) {
-      console.error("Could not clear history:", error);
+      console.error("Calculation failed:", error);
+      
+      // If Java sends back a 400 Bad Request because of our validation rules:
+      if (error.response && error.response.status === 400) {
+        setResult("Invalid Math!");
+      } else {
+        setResult("Server Error");
+      }
+    } finally {
+      setLoading(false); // Turn loading OFF no matter what happens
     }
   };
 
@@ -135,7 +152,8 @@ function App() {
               <div className="row g-2 mt-2">
                 <div className="col-6"><button onClick={() => handleButtonClick('0')} className="btn btn-secondary w-100 fs-4">0</button></div>
                 <div className="col-3"><button onClick={() => handleButtonClick('.')} className="btn btn-secondary w-100 fs-4 fw-bold">.</button></div>
-                <div className="col-3"><button onClick={handleCalculate} className="btn btn-success w-100 fs-4 fw-bold">=</button></div>
+                <div className="col-3"><button onClick={handleCalculate} disabled={loading} className="btn btn-success w-100 fs-4 fw-bold">{loading ? "..." : "="}
+</button></div>
               </div>
 
             </div>

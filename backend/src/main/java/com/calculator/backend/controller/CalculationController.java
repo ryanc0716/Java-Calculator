@@ -3,6 +3,8 @@ package com.calculator.backend.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.calculator.backend.model.Calculation;
 import com.calculator.backend.repository.CalculationRepository;
 import com.calculator.backend.service.CalculationService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/calculations")
@@ -33,16 +37,15 @@ public class CalculationController {
     }
 
     @PostMapping
-    public Calculation createCalculation(@RequestBody Calculation calculation) {
-        // 1. Give the equation to the Service to solve
-        double answer = calculationService.solveEquation(calculation.getEquation());
-        
-        // 2. Attach the answer to the calculation object
-        calculation.setResult(answer);
-        
-        // 3. Save the completed calculation to the PostgreSQL database
-        return calculationRepository.save(calculation);
-    }
+    public ResponseEntity<Calculation> createCalculation(@Valid @RequestBody Calculation calculation) {
+    double answer = calculationService.solveEquation(calculation.getEquation());
+    calculation.setResult(answer);
+
+    Calculation saved = calculationRepository.save(calculation);
+
+    // Explicitly tells the client that a new resource was CREATED (HTTP 201)
+    return new ResponseEntity<>(saved, HttpStatus.CREATED);
+    }   
 
     // 3. DELETE Request: Wipes the entire history from the database
     @DeleteMapping

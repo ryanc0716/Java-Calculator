@@ -4,6 +4,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 @Entity 
 public class Calculation {
@@ -12,7 +15,10 @@ public class Calculation {
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     private Long id;
 
-    private String equation; 
+    @NotBlank(message = "Equation cannot be empty")
+    @Size(max = 50, message = "Equation is too long")
+    @Pattern(regexp = "^[0-9\\+\\-\\*/\\.\\s]+$", message = "Only math symbols allowed")
+    private String equation;
     
     // CHANGED: Using the Double object class instead of primitive double
     // so it can temporarily hold "null" when React first sends the equation!
